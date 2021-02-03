@@ -50,3 +50,9 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+use core::ptr::NonNull;
+use leveldb_sys::*;
+
+/// `Options` is a wrapper of `*mut leveldb_options_t` to make sure to destruct on the drop.
+pub struct Options(NonNull<leveldb_options_t>);
