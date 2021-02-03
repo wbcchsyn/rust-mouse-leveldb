@@ -110,3 +110,18 @@ impl std::error::Error for Error {}
 
 /// `Database` is a wrapper of `*mut leveldb_t` to make sure to close on the drop.
 pub struct Database(Option<*mut leveldb_t>);
+
+impl Database {
+    /// Creates a new instance with unopened state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::Database;
+    ///
+    /// let _db = Database::new();
+    /// ```
+    pub const fn new() -> Self {
+        Self(None)
+    }
+}
