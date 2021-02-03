@@ -399,3 +399,26 @@ impl Drop for Octets {
         }
     }
 }
+
+impl Octets {
+    /// Creates a new instance.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be return value of `leveldb_sys::leveldb_get` .
+    #[inline]
+    unsafe fn new(ptr: *mut u8, len: usize) -> Self {
+        if ptr.is_null() {
+            assert_eq!(0, len);
+            Self {
+                ptr_: None,
+                len_: len,
+            }
+        } else {
+            Self {
+                ptr_: Some(ptr),
+                len_: len,
+            }
+        }
+    }
+}
