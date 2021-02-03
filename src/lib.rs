@@ -83,6 +83,13 @@ impl Error {
     }
 }
 
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let msg = unsafe { CStr::from_ptr(self.0.as_ptr()).to_str().unwrap() };
+        f.debug_tuple("Error").field(&msg).finish()
+    }
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = unsafe { CStr::from_ptr(self.0.as_ptr()).to_str().unwrap() };
