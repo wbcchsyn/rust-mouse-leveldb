@@ -112,6 +112,12 @@ impl std::error::Error for Error {}
 /// `Database` is a wrapper of `*mut leveldb_t` to make sure to close on the drop.
 pub struct Database(Option<*mut leveldb_t>);
 
+impl Drop for Database {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
 impl Database {
     /// Creates a new instance with unopened state.
     ///
