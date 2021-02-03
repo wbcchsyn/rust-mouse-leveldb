@@ -57,7 +57,8 @@
 
 mod options;
 
-use core::ptr::NonNull;
+use core::ptr::{null_mut, NonNull};
+use core::result::Result;
 use leveldb_sys::*;
 use once_cell::sync::Lazy;
 use options::Options;
@@ -107,3 +108,88 @@ impl fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+/// `Database` is a wrapper of `*mut leveldb_t` to make sure to close on the drop.
+pub struct Database(Option<*mut leveldb_t>);
+
+unsafe impl Send for Database {}
+unsafe impl Sync for Database {}
+
+impl Drop for Database {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+
+impl Database {
+    /// Creates a new instance with unopened state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::Database;
+    ///
+    /// let _db = Database::new();
+    /// ```
+    pub const fn new() -> Self {
+        Self(None)
+    }
+
+    /// Creates a database if not exists and opens.
+    ///
+    /// `path` is the path to the directory where database files are stored.
+    ///
+    /// # Panics
+    ///
+    /// Causes a panic if `self` has been already opened.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::Database;
+    /// use std::ffi::CString;
+    /// use tempfile;
+    ///
+    /// let tmp = tempfile::tempdir().unwrap();
+    /// let path = CString::new(tmp.path().to_str().unwrap()).unwrap();
+    ///
+    /// let mut db = Database::new();
+    /// db.open(&path).unwrap();
+    /// ```
+    pub fn open(&mut self, path: &CStr) -> Result<(), Error> {
+        assert_eq!(None, self.0);
+
+        unsafe {
+            let mut error: *mut c_char = null_mut();
+            let errptr: *mut *mut c_char = &mut error;
+
+            let ptr = leveldb_open(OPTIONS.as_ptr(), path.as_ptr(), errptr);
+            match NonNull::new(error) {
+                Some(e) => {
+                    assert_eq!(true, ptr.is_null());
+                    Err(Error::new(e))
+                }
+                None => {
+                    assert_eq!(false, ptr.is_null());
+                    self.0 = Some(ptr);
+                    Ok(())
+                }
+            }
+        }
+    }
+
+    /// Returns a pointer to the wrapped address.
+    ///
+    /// Note that `leveldb_t` is `Sync` .
+    fn as_ptr(&self) -> Option<*mut leveldb_t> {
+        self.0
+    }
+
+    /// Closes the DB and makes `self` unopend state if opened; otherwise does nothing.
+    pub fn close(&mut self) {
+        if let Some(ptr) = self.0 {
+            unsafe { leveldb_close(ptr) };
+            self.0 = None;
+        }
+    }
+}
