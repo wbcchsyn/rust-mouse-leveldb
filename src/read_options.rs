@@ -53,6 +53,7 @@
 
 use core::ptr::NonNull;
 use leveldb_sys::*;
+use std::os::raw::c_uchar;
 
 /// `ReadOptions` is a wrapper of `*mut leveldb_readoptions_t` to make sure to destruct on the
 /// drop.
@@ -61,5 +62,21 @@ pub struct ReadOptions(NonNull<leveldb_readoptions_t>);
 impl Drop for ReadOptions {
     fn drop(&mut self) {
         unsafe { leveldb_readoptions_destroy(self.0.as_ptr()) };
+    }
+}
+
+impl ReadOptions {
+    /// Creates a new instance.
+    pub fn new() -> Self {
+        unsafe {
+            let ptr = leveldb_readoptions_create();
+            assert_eq!(false, ptr.is_null());
+
+            const FALSE: c_uchar = 0;
+            leveldb_readoptions_set_fill_cache(ptr, FALSE);
+            leveldb_readoptions_set_verify_checksums(ptr, FALSE);
+
+            Self(NonNull::new_unchecked(ptr))
+        }
     }
 }
