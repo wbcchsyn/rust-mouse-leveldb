@@ -64,6 +64,9 @@ use std::os::raw::{c_char, c_void};
 /// `Error` implements `std::error::Error` .
 pub struct Error(NonNull<c_char>);
 
+unsafe impl Send for Error {}
+unsafe impl Sync for Error {}
+
 impl Drop for Error {
     fn drop(&mut self) {
         unsafe { leveldb_free(self.0.as_ptr() as *mut c_void) };
