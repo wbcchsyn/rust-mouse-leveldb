@@ -57,6 +57,8 @@
 
 use core::ptr::NonNull;
 use leveldb_sys::*;
+use std::ffi::CStr;
+use std::fmt;
 use std::os::raw::{c_char, c_void};
 
 /// `Error` implements `std::error::Error` .
@@ -78,5 +80,12 @@ impl Error {
     #[inline]
     const unsafe fn new(ptr: NonNull<c_char>) -> Self {
         Self(ptr)
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let msg = unsafe { CStr::from_ptr(self.0.as_ptr()).to_str().unwrap() };
+        msg.fmt(f)
     }
 }
