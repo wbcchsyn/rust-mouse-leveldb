@@ -168,4 +168,12 @@ impl Database {
             }
         }
     }
+
+    /// Closes the DB and makes `self` unopend state if opened; otherwise does nothing.
+    pub fn close(&mut self) {
+        if let Some(ptr) = self.0 {
+            unsafe { leveldb_close(ptr) };
+            self.0 = None;
+        }
+    }
 }
