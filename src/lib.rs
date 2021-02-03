@@ -175,6 +175,13 @@ impl Database {
         }
     }
 
+    /// Returns a pointer to the wrapped address.
+    ///
+    /// Note that `leveldb_t` is `Sync` .
+    fn as_ptr(&self) -> Option<*mut leveldb_t> {
+        self.0
+    }
+
     /// Closes the DB and makes `self` unopend state if opened; otherwise does nothing.
     pub fn close(&mut self) {
         if let Some(ptr) = self.0 {
