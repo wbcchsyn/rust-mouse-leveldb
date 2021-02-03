@@ -228,4 +228,21 @@ impl WriteBatch {
 
         self.0 = Some(ptr);
     }
+
+    /// Makes sure to destructs the wrapped pointer.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::WriteBatch;
+    ///
+    /// let mut batch = WriteBatch::new();
+    /// batch.destroy();
+    /// ```
+    pub fn destroy(&mut self) {
+        if let Some(ptr) = self.0 {
+            unsafe { leveldb_writebatch_destroy(ptr) };
+            self.0 = None;
+        }
+    }
 }
