@@ -235,6 +235,52 @@ impl WriteBatch {
         self.0 = Some(ptr);
     }
 
+    /// Appends a pair of `(key, value)` to self.
+    ///
+    /// # Warnings
+    ///
+    /// This method calls `leveldb_sys::leveldb_writebatch_put` and it copies `key` and `value`
+    /// internally.
+    ///
+    /// Accumerating too many raws may exhaust the OS memory.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::WriteBatch;
+    ///
+    /// let mut batch = WriteBatch::new();
+    ///
+    /// let key1: &[u8] = &[1, 2, 3];
+    /// let key2: &[u8] = &[4];
+    ///
+    /// let value1: &[u8] = &[];
+    /// let value2: &[u8] = &[5, 6];
+    /// let value3: &[u8] = &[7, 7, 8];
+    ///
+    /// batch.put(key1, value1);
+    /// batch.put(key2, value2);
+    /// batch.put(key1, value3);
+    /// ```
+    #[inline]
+    pub fn put(&mut self, key: &[u8], value: &[u8]) {
+        if self.0 == None {
+            self.init();
+        }
+
+        let ptr = self.0.unwrap();
+
+        unsafe {
+            leveldb_writebatch_put(
+                ptr,
+                key.as_ptr() as *const c_char,
+                key.len(),
+                value.as_ptr() as *const c_char,
+                value.len(),
+            )
+        };
+    }
+
     /// Makes sure to destructs the wrapped pointer.
     ///
     /// # Examples
