@@ -52,3 +52,5 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 //! `mouse-leveldb` is a wrapper of crate `leveldb-sys` for `mouse` .
+
+#![deny(missing_docs)]
