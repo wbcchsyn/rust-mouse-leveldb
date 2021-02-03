@@ -281,6 +281,30 @@ impl WriteBatch {
         };
     }
 
+    /// Deletes the holding keys and values.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::WriteBatch;
+    ///
+    /// let mut batch = WriteBatch::new();
+    ///
+    /// batch.clear();  // Do nothing.
+    ///
+    /// let key: &[u8] = &[1, 2, 3];
+    /// let value: &[u8] = &[];
+    /// batch.put(key, value);
+    ///
+    /// batch.clear();  // Delete 'key' and 'value'
+    /// ```
+    #[inline]
+    pub fn clear(&mut self) {
+        if let Some(ptr) = self.0 {
+            unsafe { leveldb_writebatch_clear(ptr) };
+        }
+    }
+
     /// Makes sure to destructs the wrapped pointer.
     ///
     /// # Examples
