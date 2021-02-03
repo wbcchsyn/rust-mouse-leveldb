@@ -57,3 +57,9 @@ use leveldb_sys::*;
 /// `ReadOptions` is a wrapper of `*mut leveldb_readoptions_t` to make sure to destruct on the
 /// drop.
 pub struct ReadOptions(NonNull<leveldb_readoptions_t>);
+
+impl Drop for ReadOptions {
+    fn drop(&mut self) {
+        unsafe { leveldb_readoptions_destroy(self.0.as_ptr()) };
+    }
+}
