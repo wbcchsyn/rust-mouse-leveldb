@@ -10,3 +10,4 @@ license = "LGPL-3.0-or-later OR Apache-2.0 OR BSD-2-Clause"
 
 [dependencies]
 leveldb-sys = "2.0"
+once_cell = "1.5"
