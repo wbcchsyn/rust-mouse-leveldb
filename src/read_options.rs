@@ -59,6 +59,9 @@ use std::os::raw::c_uchar;
 /// drop.
 pub struct ReadOptions(NonNull<leveldb_readoptions_t>);
 
+unsafe impl Send for ReadOptions {}
+unsafe impl Sync for ReadOptions {}
+
 impl Drop for ReadOptions {
     fn drop(&mut self) {
         unsafe { leveldb_readoptions_destroy(self.0.as_ptr()) };
