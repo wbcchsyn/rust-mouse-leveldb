@@ -54,3 +54,9 @@
 //! `mouse-leveldb` is a wrapper of crate `leveldb-sys` for `mouse` .
 
 #![deny(missing_docs)]
+
+use core::ptr::NonNull;
+use std::os::raw::c_char;
+
+/// `Error` implements `std::error::Error` .
+pub struct Error(NonNull<c_char>);
