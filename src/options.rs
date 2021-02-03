@@ -56,3 +56,9 @@ use leveldb_sys::*;
 
 /// `Options` is a wrapper of `*mut leveldb_options_t` to make sure to destruct on the drop.
 pub struct Options(NonNull<leveldb_options_t>);
+
+impl Drop for Options {
+    fn drop(&mut self) {
+        unsafe { leveldb_options_destroy(self.0.as_ptr()) };
+    }
+}
