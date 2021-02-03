@@ -64,12 +64,14 @@ use core::result::Result;
 use leveldb_sys::*;
 use once_cell::sync::Lazy;
 use options::Options;
+use read_options::ReadOptions;
 use std::ffi::CStr;
 use std::fmt;
 use std::os::raw::{c_char, c_void};
 use write_options::WriteOptions;
 
 static OPTIONS: Lazy<Options> = Lazy::new(|| Options::new());
+static READ_OPTIONS: Lazy<ReadOptions> = Lazy::new(|| ReadOptions::new());
 static WRITE_OPTIONS: Lazy<WriteOptions> = Lazy::new(|| WriteOptions::new());
 
 /// `Error` implements `std::error::Error` .
