@@ -56,6 +56,7 @@
 #![deny(missing_docs)]
 
 mod options;
+mod read_options;
 mod write_options;
 
 use core::ptr::{null_mut, NonNull};
