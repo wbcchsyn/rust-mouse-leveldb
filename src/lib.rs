@@ -200,6 +200,12 @@ impl Database {
 /// `WriteBatch` is a wrapper of `*mut leveldb_writebatch_t` to make sure to destruct on the drop.
 pub struct WriteBatch(Option<*mut leveldb_writebatch_t>);
 
+impl Drop for WriteBatch {
+    fn drop(&mut self) {
+        self.destroy();
+    }
+}
+
 impl WriteBatch {
     /// Creates a new instance.
     ///
