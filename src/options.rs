@@ -80,4 +80,9 @@ impl Options {
             Self(NonNull::new_unchecked(ptr))
         }
     }
+
+    /// Provides a raw pointer to wrapped address.
+    pub fn as_ptr(&self) -> *const leveldb_options_t {
+        self.0.as_ptr()
+    }
 }
