@@ -53,6 +53,7 @@
 
 use core::ptr::NonNull;
 use leveldb_sys::*;
+use std::os::raw::c_uchar;
 
 /// `WriteOptions` is a wrapper of `*mut leveldb_writeoptions_t` to make sure to destruct on the
 /// drop.
@@ -61,5 +62,20 @@ pub struct WriteOptions(NonNull<leveldb_writeoptions_t>);
 impl Drop for WriteOptions {
     fn drop(&mut self) {
         unsafe { leveldb_writeoptions_destroy(self.0.as_ptr()) };
+    }
+}
+
+impl WriteOptions {
+    /// Creates a new instance.
+    pub fn new() -> Self {
+        unsafe {
+            let ptr = leveldb_writeoptions_create();
+            assert_eq!(false, ptr.is_null());
+
+            const TRUE: c_uchar = 1;
+            leveldb_writeoptions_set_sync(ptr, TRUE);
+
+            Self(NonNull::new_unchecked(ptr))
+        }
     }
 }
