@@ -59,6 +59,9 @@ use std::os::raw::c_uchar;
 /// drop.
 pub struct WriteOptions(NonNull<leveldb_writeoptions_t>);
 
+unsafe impl Send for WriteOptions {}
+unsafe impl Sync for WriteOptions {}
+
 impl Drop for WriteOptions {
     fn drop(&mut self) {
         unsafe { leveldb_writeoptions_destroy(self.0.as_ptr()) };
