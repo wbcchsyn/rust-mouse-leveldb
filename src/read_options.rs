@@ -79,4 +79,10 @@ impl ReadOptions {
             Self(NonNull::new_unchecked(ptr))
         }
     }
+
+    /// Provides a raw pointer to the wrapped address.
+    #[inline]
+    pub fn as_ptr(&self) -> *const leveldb_readoptions_t {
+        self.0.as_ptr()
+    }
 }
