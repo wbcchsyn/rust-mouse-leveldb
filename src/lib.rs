@@ -199,3 +199,18 @@ impl Database {
 
 /// `WriteBatch` is a wrapper of `*mut leveldb_writebatch_t` to make sure to destruct on the drop.
 pub struct WriteBatch(Option<*mut leveldb_writebatch_t>);
+
+impl WriteBatch {
+    /// Creates a new instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::WriteBatch;
+    ///
+    /// let _batch = WriteBatch::new();
+    /// ```
+    pub const fn new() -> Self {
+        Self(None)
+    }
+}
