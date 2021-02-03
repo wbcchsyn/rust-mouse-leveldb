@@ -57,3 +57,9 @@ use leveldb_sys::*;
 /// `WriteOptions` is a wrapper of `*mut leveldb_writeoptions_t` to make sure to destruct on the
 /// drop.
 pub struct WriteOptions(NonNull<leveldb_writeoptions_t>);
+
+impl Drop for WriteOptions {
+    fn drop(&mut self) {
+        unsafe { leveldb_writeoptions_destroy(self.0.as_ptr()) };
+    }
+}
