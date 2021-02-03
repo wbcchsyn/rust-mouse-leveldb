@@ -57,7 +57,8 @@
 
 mod options;
 
-use core::ptr::NonNull;
+use core::ptr::{null_mut, NonNull};
+use core::result::Result;
 use leveldb_sys::*;
 use once_cell::sync::Lazy;
 use options::Options;
@@ -123,5 +124,48 @@ impl Database {
     /// ```
     pub const fn new() -> Self {
         Self(None)
+    }
+
+    /// Creates a database if not exists and opens.
+    ///
+    /// `path` is the path to the directory where database files are stored.
+    ///
+    /// # Panics
+    ///
+    /// Causes a panic if `self` has been already opened.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::Database;
+    /// use std::ffi::CString;
+    /// use tempfile;
+    ///
+    /// let tmp = tempfile::tempdir().unwrap();
+    /// let path = CString::new(tmp.path().to_str().unwrap()).unwrap();
+    ///
+    /// let mut db = Database::new();
+    /// db.open(&path).unwrap();
+    /// ```
+    pub fn open(&mut self, path: &CStr) -> Result<(), Error> {
+        assert_eq!(None, self.0);
+
+        unsafe {
+            let mut error: *mut c_char = null_mut();
+            let errptr: *mut *mut c_char = &mut error;
+
+            let ptr = leveldb_open(OPTIONS.as_ptr(), path.as_ptr(), errptr);
+            match NonNull::new(error) {
+                Some(e) => {
+                    assert_eq!(true, ptr.is_null());
+                    Err(Error::new(e))
+                }
+                None => {
+                    assert_eq!(false, ptr.is_null());
+                    self.0 = Some(ptr);
+                    Ok(())
+                }
+            }
+        }
     }
 }
