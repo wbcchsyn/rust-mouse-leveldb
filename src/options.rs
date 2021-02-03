@@ -53,6 +53,7 @@
 
 use core::ptr::NonNull;
 use leveldb_sys::*;
+use std::os::raw::c_uchar;
 
 /// `Options` is a wrapper of `*mut leveldb_options_t` to make sure to destruct on the drop.
 pub struct Options(NonNull<leveldb_options_t>);
@@ -60,5 +61,23 @@ pub struct Options(NonNull<leveldb_options_t>);
 impl Drop for Options {
     fn drop(&mut self) {
         unsafe { leveldb_options_destroy(self.0.as_ptr()) };
+    }
+}
+
+impl Options {
+    /// Creates a new instance.
+    pub fn new() -> Self {
+        unsafe {
+            let ptr = leveldb_options_create();
+            assert_eq!(false, ptr.is_null());
+
+            const TRUE: c_uchar = 1;
+            const FALSE: c_uchar = 0;
+            leveldb_options_set_create_if_missing(ptr, TRUE);
+            leveldb_options_set_error_if_exists(ptr, FALSE);
+            leveldb_options_set_paranoid_checks(ptr, TRUE);
+
+            Self(NonNull::new_unchecked(ptr))
+        }
     }
 }
