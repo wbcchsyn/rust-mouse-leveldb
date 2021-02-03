@@ -213,4 +213,19 @@ impl WriteBatch {
     pub const fn new() -> Self {
         Self(None)
     }
+
+    /// Initializes `self` .
+    ///
+    /// # Panics
+    ///
+    /// Causes a panic if `self` has already been initialized.
+    #[inline]
+    fn init(&mut self) {
+        assert_eq!(None, self.0);
+
+        let ptr = unsafe { leveldb_writebatch_create() };
+        assert_eq!(false, ptr.is_null());
+
+        self.0 = Some(ptr);
+    }
 }
