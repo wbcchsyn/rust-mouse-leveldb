@@ -96,3 +96,5 @@ impl fmt::Display for Error {
         msg.fmt(f)
     }
 }
+
+impl std::error::Error for Error {}
