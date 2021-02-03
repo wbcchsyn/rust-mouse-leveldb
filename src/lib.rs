@@ -391,3 +391,11 @@ pub struct Octets {
     ptr_: Option<*mut u8>,
     len_: usize,
 }
+
+impl Drop for Octets {
+    fn drop(&mut self) {
+        if let Some(ptr) = self.ptr_ {
+            unsafe { leveldb_free(ptr as *mut c_void) };
+        }
+    }
+}
