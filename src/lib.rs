@@ -56,6 +56,7 @@
 #![deny(missing_docs)]
 
 mod options;
+mod write_options;
 
 use core::ptr::{null_mut, NonNull};
 use core::result::Result;
@@ -65,8 +66,10 @@ use options::Options;
 use std::ffi::CStr;
 use std::fmt;
 use std::os::raw::{c_char, c_void};
+use write_options::WriteOptions;
 
 static OPTIONS: Lazy<Options> = Lazy::new(|| Options::new());
+static WRITE_OPTIONS: Lazy<WriteOptions> = Lazy::new(|| WriteOptions::new());
 
 /// `Error` implements `std::error::Error` .
 pub struct Error(NonNull<c_char>);
