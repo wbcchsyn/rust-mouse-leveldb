@@ -325,3 +325,58 @@ impl WriteBatch {
         }
     }
 }
+
+/// Flushes `batch` to `db` .
+/// After this method is called, `batch` will be cleared even if failed.
+///
+/// # Panics
+///
+/// Causes a panic if `db` is not opened.
+///
+/// # Examples
+///
+/// ```
+/// use mouse_leveldb::{Database, WriteBatch};
+/// use std::ffi::CString;
+/// use tempfile;
+///
+/// let tmp = tempfile::tempdir().unwrap();
+/// let path = CString::new(tmp.path().to_str().unwrap()).unwrap();
+///
+/// let mut db = Database::new();
+/// db.open(&path).unwrap();
+///
+/// let mut batch = WriteBatch::new();
+///
+/// let key1: &[u8] = &[1, 2, 3];
+/// let key2: &[u8] = &[4];
+///
+/// let value1: &[u8] = &[];
+/// let value2: &[u8] = &[5, 6];
+/// let value3: &[u8] = &[7, 7, 8];
+///
+/// batch.put(key1, value1);
+/// batch.put(key2, value2);
+/// batch.put(key1, value3);
+///
+/// mouse_leveldb::write(&db, &mut batch);
+/// ```
+pub fn write(db: &Database, batch: &mut WriteBatch) -> Result<(), Error> {
+    match batch.0 {
+        None => Ok(()),
+        Some(batch) => {
+            let mut error: *mut c_char = null_mut();
+            let errptr: *mut *mut c_char = &mut error;
+
+            unsafe {
+                leveldb_write(db.as_ptr().unwrap(), WRITE_OPTIONS.as_ptr(), batch, errptr);
+                leveldb_writebatch_clear(batch);
+            }
+
+            match NonNull::new(error) {
+                None => Ok(()),
+                Some(ptr) => unsafe { Err(Error::new(ptr)) },
+            }
+        }
+    }
+}
