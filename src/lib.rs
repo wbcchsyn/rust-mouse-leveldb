@@ -59,9 +59,13 @@ mod options;
 
 use core::ptr::NonNull;
 use leveldb_sys::*;
+use once_cell::sync::Lazy;
+use options::Options;
 use std::ffi::CStr;
 use std::fmt;
 use std::os::raw::{c_char, c_void};
+
+static OPTIONS: Lazy<Options> = Lazy::new(|| Options::new());
 
 /// `Error` implements `std::error::Error` .
 pub struct Error(NonNull<c_char>);
