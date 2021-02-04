@@ -66,6 +66,7 @@ use leveldb_sys::*;
 use once_cell::sync::Lazy;
 use options::Options;
 use read_options::ReadOptions;
+use std::borrow::{Borrow, BorrowMut};
 use std::ffi::CStr;
 use std::fmt;
 use std::os::raw::{c_char, c_void};
@@ -421,6 +422,34 @@ impl Octets {
                 len_: len,
             }
         }
+    }
+}
+
+impl AsRef<[u8]> for Octets {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        self.deref()
+    }
+}
+
+impl AsMut<[u8]> for Octets {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [u8] {
+        self.deref_mut()
+    }
+}
+
+impl Borrow<[u8]> for Octets {
+    #[inline]
+    fn borrow(&self) -> &[u8] {
+        self.deref()
+    }
+}
+
+impl BorrowMut<[u8]> for Octets {
+    #[inline]
+    fn borrow_mut(&mut self) -> &mut [u8] {
+        self.deref_mut()
     }
 }
 
