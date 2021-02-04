@@ -59,6 +59,7 @@ mod options;
 mod read_options;
 mod write_options;
 
+use core::cmp::Ordering;
 use core::ops::{Deref, DerefMut};
 use core::ptr::{null_mut, NonNull};
 use core::result::Result;
@@ -435,6 +436,24 @@ impl PartialEq<Self> for Octets {
 }
 
 impl Eq for Octets {}
+
+impl PartialOrd<Self> for Octets {
+    #[inline]
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let this: &[u8] = self.borrow();
+        let other: &[u8] = other.borrow();
+        this.partial_cmp(other)
+    }
+}
+
+impl Ord for Octets {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        let this: &[u8] = self.borrow();
+        let other: &[u8] = other.borrow();
+        this.cmp(other)
+    }
+}
 
 impl AsRef<[u8]> for Octets {
     #[inline]
