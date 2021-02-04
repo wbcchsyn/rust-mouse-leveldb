@@ -467,6 +467,12 @@ impl Hash for Octets {
     }
 }
 
+impl fmt::Debug for Octets {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("Octets").field(&self.deref()).finish()
+    }
+}
+
 impl AsRef<[u8]> for Octets {
     #[inline]
     fn as_ref(&self) -> &[u8] {
