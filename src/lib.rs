@@ -425,6 +425,17 @@ impl Octets {
     }
 }
 
+impl PartialEq<Self> for Octets {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        let this: &[u8] = self.borrow();
+        let other: &[u8] = other.borrow();
+        this.eq(other)
+    }
+}
+
+impl Eq for Octets {}
+
 impl AsRef<[u8]> for Octets {
     #[inline]
     fn as_ref(&self) -> &[u8] {
