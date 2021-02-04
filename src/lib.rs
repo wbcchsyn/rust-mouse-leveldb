@@ -396,6 +396,9 @@ pub struct Octets {
     len_: usize,
 }
 
+unsafe impl Send for Octets {}
+unsafe impl Sync for Octets {}
+
 impl Drop for Octets {
     fn drop(&mut self) {
         if let Some(ptr) = self.ptr_ {
