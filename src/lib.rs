@@ -59,6 +59,7 @@ mod options;
 mod read_options;
 mod write_options;
 
+use core::ops::Deref;
 use core::ptr::{null_mut, NonNull};
 use core::result::Result;
 use leveldb_sys::*;
@@ -419,6 +420,18 @@ impl Octets {
                 ptr_: Some(ptr),
                 len_: len,
             }
+        }
+    }
+}
+
+impl Deref for Octets {
+    type Target = [u8];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        match self.ptr_ {
+            None => &[],
+            Some(ptr) => unsafe { core::slice::from_raw_parts(ptr, self.len_) },
         }
     }
 }
