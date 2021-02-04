@@ -60,6 +60,7 @@ mod read_options;
 mod write_options;
 
 use core::cmp::Ordering;
+use core::hash::{Hash, Hasher};
 use core::ops::{Deref, DerefMut};
 use core::ptr::{null_mut, NonNull};
 use core::result::Result;
@@ -452,6 +453,17 @@ impl Ord for Octets {
         let this: &[u8] = self.borrow();
         let other: &[u8] = other.borrow();
         this.cmp(other)
+    }
+}
+
+impl Hash for Octets {
+    #[inline]
+    fn hash<H>(&self, hasher: &mut H)
+    where
+        H: Hasher,
+    {
+        let this: &[u8] = self.borrow();
+        this.hash(hasher);
     }
 }
 
