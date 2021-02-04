@@ -525,3 +525,69 @@ impl DerefMut for Octets {
         }
     }
 }
+
+/// Tries to fetch the value corresponding to `key` .
+///
+/// If no such `key` is stored, returns an empty [`Octets`] .
+/// (It is not an error because the query itself is succeeded.)
+///
+/// # Panics
+///
+/// Causes a panic if `db` is not opened.
+///
+/// # Examples
+///
+/// ```
+/// use mouse_leveldb::{Database, WriteBatch};
+/// use std::ffi::CString;
+/// use tempfile;
+///
+/// let tmp = tempfile::tempdir().unwrap();
+/// let path = CString::new(tmp.path().to_str().unwrap()).unwrap();
+///
+/// let mut db = Database::new();
+/// db.open(&path).unwrap();
+///
+/// let key: &[u8] = &[1, 2, 3];
+/// let value: &[u8] = &[4, 4];
+///
+/// // Not found before insert.
+/// {
+///     let octets = mouse_leveldb::get(&db, key);
+///     assert_eq!(&[] as &[u8], octets.unwrap().as_ref());
+/// }
+///
+/// let mut batch = WriteBatch::new();
+///
+/// batch.put(key, value);
+/// mouse_leveldb::write(&db, &mut batch);
+///
+/// // Found the value after insert.
+/// {
+///     let octets = mouse_leveldb::get(&db, key);
+///     assert_eq!(value, octets.unwrap().as_ref());
+/// }
+/// ```
+#[inline]
+pub fn get(db: &Database, key: &[u8]) -> Result<Octets, Error> {
+    let mut error: *mut c_char = null_mut();
+    let errptr: *mut *mut c_char = &mut error;
+
+    let mut vallen: usize = 0;
+
+    unsafe {
+        let pval = leveldb_get(
+            db.as_ptr().unwrap(),
+            READ_OPTIONS.as_ptr(),
+            key.as_ptr() as *const c_char,
+            key.len(),
+            &mut vallen as *mut usize,
+            errptr,
+        );
+
+        match NonNull::new(error) {
+            Some(ptr) => Err(Error::new(ptr)),
+            None => Ok(Octets::new(pval as *mut u8, vallen)),
+        }
+    }
+}
