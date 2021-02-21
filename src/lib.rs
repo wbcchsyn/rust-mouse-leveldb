@@ -236,7 +236,7 @@ impl WriteBatch {
     ///
     /// Causes a panic if `self` has already been initialized.
     #[inline]
-    fn init(&mut self) {
+    pub fn init(&mut self) {
         assert_eq!(None, self.0);
 
         let ptr = unsafe { leveldb_writebatch_create() };
