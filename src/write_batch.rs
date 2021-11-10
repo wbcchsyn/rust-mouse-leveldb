@@ -86,6 +86,40 @@ impl WriteBatch {
         Self { ptr: None, len_: 0 }
     }
 
+    /// Returns how many (key, value) pairs `self` has.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mouse_leveldb::WriteBatch;
+    ///
+    /// let mut batch = WriteBatch::new();
+    /// assert_eq!(0, batch.len());
+    ///
+    /// let key1: &[u8] = &[1, 2, 3];
+    /// let key2: &[u8] = &[4];
+    ///
+    /// let value1: &[u8] = &[];
+    /// let value2: &[u8] = &[5, 6];
+    /// let value3: &[u8] = &[7, 7, 8];
+    ///
+    /// batch.put(key1, value1);
+    /// assert_eq!(1, batch.len());
+    /// batch.put(key2, value2);
+    /// assert_eq!(2, batch.len());
+    /// batch.put(key1, value3);
+    /// assert_eq!(3, batch.len());
+    ///
+    /// batch.clear();
+    /// assert_eq!(0, batch.len());
+    ///
+    /// batch.put(key1, value1);
+    /// assert_eq!(1, batch.len());
+    /// ```
+    pub fn len(&self) -> usize {
+        self.len_
+    }
+
     /// Appends a pair of `(key, value)` to self.
     ///
     /// # Warnings
