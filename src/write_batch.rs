@@ -156,17 +156,8 @@ impl WriteBatch {
     #[inline]
     pub fn put(&mut self, key: &[u8], value: &[u8]) {
         unsafe {
-            let ptr = match self.ptr {
-                None => {
-                    let ptr = leveldb_writebatch_create();
-                    self.ptr = Some(ptr);
-                    ptr
-                }
-                Some(ptr) => ptr,
-            };
-
             leveldb_writebatch_put(
-                ptr,
+                self.ptr.unwrap(),
                 key.as_ptr() as *const c_char,
                 key.len(),
                 value.as_ptr() as *const c_char,
