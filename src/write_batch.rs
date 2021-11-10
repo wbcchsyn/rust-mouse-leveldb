@@ -84,7 +84,7 @@ impl WriteBatch {
     ///
     /// let _batch = WriteBatch::new();
     /// ```
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self { ptr: None, len_: 0 }
     }
 
