@@ -116,26 +116,26 @@ static WRITE_OPTIONS: Lazy<WriteOptions> = Lazy::new(|| WriteOptions::new());
 /// mouse_leveldb::write(&db, &mut batch);
 /// ```
 pub fn write(db: &Database, batch: &mut WriteBatch) -> Result<(), Error> {
-    match write_batch::as_ptr(batch) {
-        None => Ok(()),
-        Some(batch) => {
-            let mut error: *mut c_char = null_mut();
-            let errptr: *mut *mut c_char = &mut error;
+    if batch.len() == 0 {
+        Ok(())
+    } else {
+        let batch = write_batch::as_ptr(batch).unwrap();
+        let mut error: *mut c_char = null_mut();
+        let errptr: *mut *mut c_char = &mut error;
 
-            unsafe {
-                leveldb_write(
-                    database::as_ptr(db).unwrap(),
-                    WRITE_OPTIONS.as_ptr(),
-                    batch,
-                    errptr,
-                );
-                leveldb_writebatch_clear(batch);
-            }
+        unsafe {
+            leveldb_write(
+                database::as_ptr(db).unwrap(),
+                WRITE_OPTIONS.as_ptr(),
+                batch,
+                errptr,
+            );
+            leveldb_writebatch_clear(batch);
+        }
 
-            match NonNull::new(error) {
-                None => Ok(()),
-                Some(ptr) => unsafe { Err(error::new(ptr)) },
-            }
+        match NonNull::new(error) {
+            None => Ok(()),
+            Some(ptr) => unsafe { Err(error::new(ptr)) },
         }
     }
 }
