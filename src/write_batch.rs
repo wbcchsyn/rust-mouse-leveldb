@@ -156,8 +156,9 @@ impl WriteBatch {
     /// ```
     #[inline]
     pub fn clear(&mut self) {
-        if let Some(ptr) = self.ptr {
-            unsafe { leveldb_writebatch_clear(ptr) };
+        if 0 < self.len_ {
+            unsafe { leveldb_writebatch_clear(self.ptr.unwrap()) };
+            self.len_ = 0;
         }
     }
 
