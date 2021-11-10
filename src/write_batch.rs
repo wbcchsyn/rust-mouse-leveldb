@@ -68,9 +68,8 @@ unsafe impl Sync for WriteBatch {}
 
 impl Drop for WriteBatch {
     fn drop(&mut self) {
-        if let Some(ptr) = self.ptr {
-            unsafe { leveldb_writebatch_destroy(ptr) };
-        }
+        let ptr = self.ptr.unwrap();
+        unsafe { leveldb_writebatch_destroy(ptr) };
     }
 }
 
