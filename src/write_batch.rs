@@ -133,6 +133,8 @@ impl WriteBatch {
                 value.len(),
             );
         }
+
+        self.len_ += 1;
     }
 
     /// Deletes the holding keys and values.
