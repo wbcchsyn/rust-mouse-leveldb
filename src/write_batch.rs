@@ -83,21 +83,6 @@ impl WriteBatch {
         Self(None)
     }
 
-    /// Initializes `self` .
-    ///
-    /// # Panics
-    ///
-    /// Causes a panic if `self` has already been initialized.
-    #[inline]
-    pub fn init(&mut self) {
-        assert_eq!(None, self.0);
-
-        let ptr = unsafe { leveldb_writebatch_create() };
-        assert_eq!(false, ptr.is_null());
-
-        self.0 = Some(ptr);
-    }
-
     /// Appends a pair of `(key, value)` to self.
     ///
     /// # Warnings
@@ -127,21 +112,24 @@ impl WriteBatch {
     /// ```
     #[inline]
     pub fn put(&mut self, key: &[u8], value: &[u8]) {
-        if self.0 == None {
-            self.init();
-        }
-
-        let ptr = self.0.unwrap();
-
         unsafe {
+            let ptr = match self.0 {
+                None => {
+                    let ptr = leveldb_writebatch_create();
+                    self.0 = Some(ptr);
+                    ptr
+                }
+                Some(ptr) => ptr,
+            };
+
             leveldb_writebatch_put(
                 ptr,
                 key.as_ptr() as *const c_char,
                 key.len(),
                 value.as_ptr() as *const c_char,
                 value.len(),
-            )
-        };
+            );
+        }
     }
 
     /// Deletes the holding keys and values.
