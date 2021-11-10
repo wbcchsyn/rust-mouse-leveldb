@@ -60,6 +60,7 @@ use std::os::raw::c_char;
 /// `WriteBatch` is a wrapper of `*mut leveldb_writebatch_t` to make sure to destruct on the drop.
 pub struct WriteBatch {
     ptr: Option<*mut leveldb_writebatch_t>,
+    len_: usize,
 }
 
 unsafe impl Send for WriteBatch {}
@@ -82,7 +83,7 @@ impl WriteBatch {
     /// let _batch = WriteBatch::new();
     /// ```
     pub const fn new() -> Self {
-        Self { ptr: None }
+        Self { ptr: None, len_: 0 }
     }
 
     /// Appends a pair of `(key, value)` to self.
