@@ -119,7 +119,7 @@ pub fn write(db: &Database, batch: &mut WriteBatch) -> Result<(), Error> {
     if batch.len() == 0 {
         Ok(())
     } else {
-        let batch = write_batch::as_ptr(batch).unwrap();
+        let batch = write_batch::as_ptr(batch).as_ptr();
         let mut error: *mut c_char = null_mut();
         let errptr: *mut *mut c_char = &mut error;
 
