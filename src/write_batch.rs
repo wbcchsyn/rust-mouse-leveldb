@@ -51,6 +51,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+use core::ptr::NonNull;
 use leveldb_sys::{
     leveldb_writebatch_clear, leveldb_writebatch_create, leveldb_writebatch_destroy,
     leveldb_writebatch_put, leveldb_writebatch_t,
@@ -194,6 +195,6 @@ impl WriteBatch {
 }
 
 /// Returns a pointer to the wrapped address.
-pub fn as_ptr(batch: &mut WriteBatch) -> Option<*mut leveldb_writebatch_t> {
-    batch.ptr
+pub fn as_ptr(batch: &mut WriteBatch) -> NonNull<leveldb_writebatch_t> {
+    NonNull::new(batch.ptr.unwrap()).unwrap()
 }
