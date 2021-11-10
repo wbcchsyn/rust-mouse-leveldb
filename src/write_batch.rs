@@ -60,7 +60,7 @@ use std::os::raw::c_char;
 
 /// `WriteBatch` is a wrapper of `*mut leveldb_writebatch_t` to make sure to destruct on the drop.
 pub struct WriteBatch {
-    ptr: Option<*mut leveldb_writebatch_t>,
+    ptr: NonNull<leveldb_writebatch_t>,
     len_: usize,
 }
 
@@ -69,8 +69,7 @@ unsafe impl Sync for WriteBatch {}
 
 impl Drop for WriteBatch {
     fn drop(&mut self) {
-        let ptr = self.ptr.unwrap();
-        unsafe { leveldb_writebatch_destroy(ptr) };
+        unsafe { leveldb_writebatch_destroy(self.ptr.as_ptr()) };
     }
 }
 
@@ -87,7 +86,7 @@ impl WriteBatch {
     pub fn new() -> Self {
         let ptr = unsafe { leveldb_writebatch_create() };
         Self {
-            ptr: Some(ptr),
+            ptr: NonNull::new(ptr).unwrap(),
             len_: 0,
         }
     }
@@ -157,7 +156,7 @@ impl WriteBatch {
     pub fn put(&mut self, key: &[u8], value: &[u8]) {
         unsafe {
             leveldb_writebatch_put(
-                self.ptr.unwrap(),
+                self.ptr.as_ptr(),
                 key.as_ptr() as *const c_char,
                 key.len(),
                 value.as_ptr() as *const c_char,
@@ -188,7 +187,7 @@ impl WriteBatch {
     #[inline]
     pub fn clear(&mut self) {
         if 0 < self.len_ {
-            unsafe { leveldb_writebatch_clear(self.ptr.unwrap()) };
+            unsafe { leveldb_writebatch_clear(self.ptr.as_ptr()) };
             self.len_ = 0;
         }
     }
@@ -196,5 +195,5 @@ impl WriteBatch {
 
 /// Returns a pointer to the wrapped address.
 pub fn as_ptr(batch: &mut WriteBatch) -> NonNull<leveldb_writebatch_t> {
-    NonNull::new(batch.ptr.unwrap()).unwrap()
+    batch.ptr
 }
