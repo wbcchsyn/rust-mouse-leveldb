@@ -68,7 +68,9 @@ unsafe impl Sync for WriteBatch {}
 
 impl Drop for WriteBatch {
     fn drop(&mut self) {
-        self.destroy();
+        if let Some(ptr) = self.ptr {
+            unsafe { leveldb_writebatch_destroy(ptr) };
+        }
     }
 }
 
@@ -193,23 +195,6 @@ impl WriteBatch {
         if 0 < self.len_ {
             unsafe { leveldb_writebatch_clear(self.ptr.unwrap()) };
             self.len_ = 0;
-        }
-    }
-
-    /// Makes sure to destructs the wrapped pointer.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use mouse_leveldb::WriteBatch;
-    ///
-    /// let mut batch = WriteBatch::new();
-    /// batch.destroy();
-    /// ```
-    pub fn destroy(&mut self) {
-        if let Some(ptr) = self.ptr {
-            unsafe { leveldb_writebatch_destroy(ptr) };
-            self.ptr = None;
         }
     }
 }
