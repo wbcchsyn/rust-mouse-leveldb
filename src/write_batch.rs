@@ -85,7 +85,11 @@ impl WriteBatch {
     /// let _batch = WriteBatch::new();
     /// ```
     pub fn new() -> Self {
-        Self { ptr: None, len_: 0 }
+        let ptr = unsafe { leveldb_writebatch_create() };
+        Self {
+            ptr: Some(ptr),
+            len_: 0,
+        }
     }
 
     /// Returns how many (key, value) pairs `self` has.
